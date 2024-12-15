@@ -23,7 +23,7 @@ class CartAddView(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request, product_id):
-        card = Cart(request)
+        cart = Cart(request)
         product = get_object_or_404(Product, id=product_id )
         ser_data = AddProductSerializer(data=request.data)
         if ser_data.is_valid():
@@ -36,7 +36,7 @@ class CartAddView(APIView):
                         return Response({'message': 'Not enough stock available'},
                                         status=status.HTTP_400_BAD_REQUEST)
 
-                    card.add(product, ser_data.validated_data['quantity'])
+                    cart.add(product, ser_data.validated_data['quantity'])
                     product.inventory -= quantity_to_add
                     product.save()
                     return Response({'messages': 'product added to cart'},
