@@ -63,5 +63,3 @@ class Cart:
         expired_carts.update(is_expired=True)
         # Remove cart session
         self.session.pop(CART_SESSION_ID, None)
-
-
