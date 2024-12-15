@@ -22,6 +22,10 @@ class CartAddView(APIView):
         product = get_object_or_404(Product, id=product_id )
         ser_data = AddProductSerializer(data=request.data)
         if ser_data.is_valid():
+            quantity_to_add = ser_data.validated_data['quantity']
+            if product.stock < quantity_to_add:
+                return Response({'message': 'Not enough stock available'}, status=status.HTTP_400_BAD_REQUEST)
+
             card.add(product, ser_data.validated_data['quantity'])
             return Response({'messages': 'product added to cart'}, status=status.HTTP_201_CREATED)
-        return Response({'messages': 'product not to add'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(ser_data.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,30 +1,10 @@
 from django.db import models
-from django.urls import reverse
-
-# class Category(models.Model):
-#     sub_category = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='scategory')
-#     is_sub = models.BooleanField(default=False)
-#     name = models.CharField(max_length=200)
-#     slug = models.SlugField(max_length=200, unique=True)
-#
-#     class Meta:
-#         ordering = ('name',)
-#         verbose_name = 'category'
-#         verbose_name_plural = 'categories'
-#
-#     def __str__(self):
-#         return self.name
-#
-#     def get_absolute_url(self):
-#         return reverse('home:category_filter', args=[self.slug])
-
 
 class Product(models.Model):
-    # category = models.ManyToManyField(Category, related_name='products')
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
+    price = models.IntegerField(default=0)
     inventory = models.IntegerField(default=0)
-    price = models.IntegerField()
     available = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -34,6 +14,3 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
-    # def get_absolute_url(self):
-    #     return reverse('home:product_detail', args=[self.slug, ])
