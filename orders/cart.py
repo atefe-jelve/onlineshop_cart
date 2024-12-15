@@ -1,7 +1,7 @@
 from products.models import Product
 from .models import CartModel
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 CART_SESSION_ID = 'cart'
 
@@ -32,6 +32,7 @@ class Cart:
         if product_id not in self.cart:
             self.cart[product_id] = {'quantity': 0, 'price': str(product.price)}
         self.cart[product_id]['quantity'] += quantity
+        self.cart['updated_at'] = timezone.now()
         self.save()
 
     def save(self):
@@ -44,11 +45,12 @@ class Cart:
         """ Saves cart session to the database. """
         for product_id, item in self.cart.items():
             product = Product.objects.get(id=product_id)
-            cart_model, created = CartModel.objects.get_or_create(
-                user=self.session.get('user_id'),  # Assuming user_id is stored in session
-                product=product,
-                is_expired=False
+            cart_model, created = CartModel.objects.create(
+                user=self.session.get('user_id'),
+                total_price=self.get_total_price(),
+                is_expired=False,
             )
+
             cart_model.quantity = item['quantity']
             cart_model.total_price = int(item['price']) * item['quantity']
             cart_model.save()
@@ -56,10 +58,12 @@ class Cart:
     def expire_cart(self):
         """ Expire the cart after 30 minutes. """
         expiration_time = timezone.now() - timedelta(minutes=30)
-        expired_carts = CartModel.objects.filter(
-            updated_at__lte=expiration_time,
-            is_expired=False
-        )
-        expired_carts.update(is_expired=True)
+        if self.cart['updated_at'] < expiration_time:
+            self.save_to_database()
+        # expired_carts = CartModel.objects.filter(
+        #     updated_at__lte=expiration_time,
+        #     is_expired=False
+        # )
+        # expired_carts.update(is_expired=True)
         # Remove cart session
-        self.session.pop(CART_SESSION_ID, None)
+            self.session.pop(CART_SESSION_ID, None)
