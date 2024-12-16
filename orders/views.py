@@ -36,7 +36,7 @@ class CartAddView(APIView):
                         return Response({'message': 'Not enough stock available'},
                                         status=status.HTTP_400_BAD_REQUEST)
 
-                    cart.add(product, ser_data.validated_data['quantity'])
+                    cart.add(product, ser_data.validated_data['quantity'], user=request.user)
                     product.inventory -= quantity_to_add
                     product.save()
                     return Response({'messages': 'product added to cart'},

@@ -1,3 +1,5 @@
+from django.template.context_processors import request
+
 from products.models import Product
 from django.utils import timezone
 
@@ -25,12 +27,14 @@ class Cart:
     def __len__(self):
         return sum(item['quantity'] for item in self.cart.values())
 
-    def add(self, product, quantity):
+    def add(self, product, quantity, user=None):
         product_id = str(product.id)
         if product_id not in self.cart:
             self.cart[product_id] = {'quantity': 0, 'price': str(product.price)}
         self.cart[product_id]['quantity'] += quantity
         self.session['updated_at'] = timezone.now().isoformat()
+        if user:
+            self.session['user'] = user.id
         self.save()
 
     def save(self):

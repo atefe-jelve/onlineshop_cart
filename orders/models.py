@@ -15,7 +15,7 @@ class CartModel(models.Model):
         self.save()
 
     def __str__(self):
-        return {self.id}
+        return f' number cart is :  {self.id}   for user {self.user}'
 
 
 class CartItems(models.Model):
