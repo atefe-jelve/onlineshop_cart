@@ -1,6 +1,4 @@
-# sudo docker run -d -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4.0-management
-# celery -A onlineshop inspect registered
-# celery -A onlineshop worker -l info
+
 # celery -A onlineshop worker --beat --scheduler django --loglevel=info
 
 from celery import shared_task
@@ -12,10 +10,11 @@ from users.models import BaseUser
 from .models import CartModel, CartItems
 from .cart import CART_SESSION_ID
 
+
 @shared_task
 def check_expired_carts_task():
     sessions = Session.objects.all()
-    expiration_time =  timedelta(minutes=2)
+    expiration_time =  timedelta(minutes=3)
 
     for session in sessions:
         session_data = session.get_decoded()
@@ -35,6 +34,7 @@ def save_cart_to_db(cart, user_id):
     """
     Save the expired cart to the database.
     """
+
     for product_id, item in cart.items():
         user = BaseUser.objects.get(id=user_id)
         card = CartModel.objects.create(
@@ -47,16 +47,13 @@ def save_cart_to_db(cart, user_id):
         CartItems(card, product, item['quantity'])
 
 
-
 def return_cart_quantities_to_stock(cart):
     """
     Return quantities in the expired cart to the product stock.
     """
+    print('return to data base')
     for product_id, item in cart.items():
 
         product = Product.objects.get(id=product_id)
         product.inventory += item['quantity']
         product.save()
-
-
-check_expired_carts_task()
