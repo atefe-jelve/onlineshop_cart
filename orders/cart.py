@@ -1,7 +1,5 @@
 from products.models import Product
-from .models import CartModel
 from django.utils import timezone
-from datetime import timedelta, datetime
 
 CART_SESSION_ID = 'cart'
 
@@ -32,7 +30,7 @@ class Cart:
         if product_id not in self.cart:
             self.cart[product_id] = {'quantity': 0, 'price': str(product.price)}
         self.cart[product_id]['quantity'] += quantity
-        self.cart['updated_at'] = timezone.now()
+        self.session['updated_at'] = timezone.now().isoformat()
         self.save()
 
     def save(self):
